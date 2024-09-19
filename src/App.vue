@@ -21,7 +21,7 @@ import Login from "./components/Login.vue"
     <!--<TheWelcome /> 
     <Login />-->
     
-    <Login />
+    <router-view />
 
   </main>
 </template>

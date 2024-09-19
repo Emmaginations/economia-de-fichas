@@ -4,6 +4,8 @@ import { createApp } from 'vue'
 import { VueFire } from "vuefire"
 import { initializeApp } from "firebase/app"
 import App from './App.vue';
+import router from './router';
+
 
 export const firebaseApp = initializeApp({
     apiKey: "AIzaSyBYEcgqrAVM0xY3L8OOefM-qBSjqUW-QmI",
@@ -18,6 +20,6 @@ const app = createApp(App);
 /*const app = initializeApp(firebaseConfig);*/
 
 app.use(VueFire, { firebaseApp });
-/*app.use(router);*/
+app.use(router);
 
 app.mount('#app');

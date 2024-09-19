@@ -1,10 +1,13 @@
 <script setup>
    import { ref } from "vue"; // Ensure `ref` is imported from Vue
+   import { useRouter } from 'vue-router';
   import { getFirestore, collection, query, where, getDocs } from "firebase/firestore"; // Correct imports from Firebase
   import { firebaseApp } from "@/main"; // Import your Firebase app
 
   const db = getFirestore(firebaseApp); // Initialize Firestore with your app
   const loginCollection = collection(db, "LoginInfo"); // Reference to the Firestore collection
+
+  const router = useRouter();
 
   // Reactive data properties
   const username = ref("");
@@ -30,6 +33,7 @@
           if (userData.Contraseña === password.value) {
             alert("Login successful!");
             error.value = null; // Clear error message
+            router.push({ name: 'Home' }); // redirect to homepage
             // Proceed with login logic (e.g., redirect or store session data)
           } else {
             error.value = "Incorrect password";
@@ -44,15 +48,7 @@
 </script>
 
 <template>
-    <ul>
-    <li v-for="person in login" :key="person.id">
-      <p>{{ person.Nombre }}</p>
-      <p>
-        <sub>contrasena: {{ person.Contraseña }}</sub>
-      </p>
-      <br />
-    </li>
-    </ul>
+    
 
   <div>
     <h2>Login</h2>
@@ -61,6 +57,16 @@
     <button @click="handleLogin">Login</button>
     <p v-if="error" style="color: red">{{ error }}</p>
   </div>
+
+  <!--<ul>
+    <li v-for="person in loginCollection" :key="person.id">
+      <p>{{ person.Nombre }}</p>
+      <p>
+        <sub>contrasena: {{ person.Contraseña }}</sub>
+      </p>
+      <br />
+    </li>
+    </ul>-->
 </template>
 
 <style scoped>
