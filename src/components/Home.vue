@@ -1,6 +1,30 @@
+<script setup>
+   import Tareas from "./Tareas.vue";
+
+
+   const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+</script>
+
 <template>
-    <div>
-      <h1>Home Page</h1>
-      <p>This is the main page after login which will display tasks.</p>
+    <div class="container">
+      <h2>¡Hola {{ currentUser.username }}! Vamos a organizar esta semana juntos.</h2>
+      
+      <Tareas />
+
     </div>
-  </template>
+</template>
+
+<style>
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h2 {
+  margin: 0 auto;
+}
+
+
+
+</style>

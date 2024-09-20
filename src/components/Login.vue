@@ -33,6 +33,8 @@
           if (userData.Contraseña === password.value) {
             alert("Login successful!");
             error.value = null; // Clear error message
+            const user = {username: userData.Nombre};
+            sessionStorage.setItem('currentUser', JSON.stringify(user));
             router.push({ name: 'Home' }); // redirect to homepage
             // Proceed with login logic (e.g., redirect or store session data)
           } else {
@@ -50,11 +52,21 @@
 <template>
     
 
-  <div>
+  <div id="login-window">
     <h2>Login</h2>
-    <input v-model="username" placeholder="Username" />
-    <input v-model="password"  placeholder="Password" />
-    <button @click="handleLogin">Login</button>
+    <div class="inputs">
+    <h3>Nombre de Usario</h3>
+    <input v-model="username" placeholder="Entra tu nombre de usario aquí" />
+    </div>
+    <div class="inputs">
+    <h3>Contraseña</h3>
+    <input v-model="password"  placeholder="Entra tu contraseña aquí" />
+    <a href="">¿No tienes cuenta? Haz clic aquí.</a>
+    <br />
+    <a href="">Se me olvidó mi contraseña.</a>
+    </div>
+
+    <button @click="handleLogin">Entrar</button>
     <p v-if="error" style="color: red">{{ error }}</p>
   </div>
 
@@ -70,21 +82,23 @@
 </template>
 
 <style scoped>
-.login-container {
+#login-window {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   max-width: 400px;
-  margin: auto;
-  padding: 1em;
-  border: 1px solid #ccc;
+  margin: 0 auto;
+  padding: 60px;
   border-radius: 5px;
+  background-color: #DEF3D7;
+  box-shadow: 3px 5px 3px lightgray;
+  
 }
 
-.form-group {
-  margin-bottom: 1em;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5em;
+.inputs {
+  margin: 0;
+  padding: 0;
+  width: 100%
 }
 
 input {
@@ -94,12 +108,29 @@ input {
 }
 
 button {
-  width: 100%;
+  width: 70%;
   padding: 0.7em;
-  background-color: #42b983;
+  background-color: #61C73F;
   color: white;
   border: none;
   border-radius: 5px;
+  margin-top: 30px;
+  box-shadow: 2px 4px 2px lightgray;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+h3 {
+  margin-top: 10px;
+  font-size: .9em;
+}
+
+a {
+  font-size: .75em;
+
 }
 
 .error-message {

@@ -1,19 +1,12 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-import Login from "./components/Login.vue"
 
 
 </script>
 
 <template>
-  <!--<header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>*/ -->
+  <header>
+    <h1>Economia de Fichas</h1>
+  </header>
 
   
 
@@ -28,29 +21,19 @@ import Login from "./components/Login.vue"
 
 <style scoped>
 header {
-  line-height: 1.5;
+  height: 60px;
+  width: 100%;
+  background-color: #61C73F;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+header h1 {
+  color: white;
+  padding: 10px;
+  font-size: 1em;
+  justify-content: center;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
 </style>
