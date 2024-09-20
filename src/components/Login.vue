@@ -47,6 +47,13 @@
       error.value = "Login failed: " + err.message;
     }
   }
+
+  async function signUp () {
+    router.push({ name: 'Signup' });
+  }
+
+
+
 </script>
 
 <template>
@@ -61,24 +68,16 @@
     <div class="inputs">
     <h3>Contraseña</h3>
     <input v-model="password"  placeholder="Entra tu contraseña aquí" />
-    <a href="">¿No tienes cuenta? Haz clic aquí.</a>
+    <p @click ="signUp">¿No tienes cuenta? Haz clic aquí.</p>
     <br />
-    <a href="">Se me olvidó mi contraseña.</a>
+    <p>Se me olvidó mi contraseña.</p>
     </div>
 
     <button @click="handleLogin">Entrar</button>
     <p v-if="error" style="color: red">{{ error }}</p>
   </div>
 
-  <!--<ul>
-    <li v-for="person in loginCollection" :key="person.id">
-      <p>{{ person.Nombre }}</p>
-      <p>
-        <sub>contrasena: {{ person.Contraseña }}</sub>
-      </p>
-      <br />
-    </li>
-    </ul>-->
+
 </template>
 
 <style scoped>
