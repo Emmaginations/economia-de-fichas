@@ -36,6 +36,7 @@
                 Nombre: username.value,
                 Contraseña: password.value,
                 Correo: email.value,
+                Papel: "tutor",
             });
             router.push({ name: 'Login'});
         } else {
@@ -77,7 +78,7 @@
 </template>
 <style scoped>
 
-#login-window {
+#signup-window {
   display: flex;
   flex-direction: column;
   align-items: center;
