@@ -5,7 +5,7 @@
 
 <template>
   <header>
-    <h1>Economia de Fichas</h1>
+    <h1>Economía de Fichas</h1>
   </header>
 
   

@@ -31,14 +31,14 @@
         querySnapshot.forEach((doc) => {
           const userData = doc.data();
           if (userData.Contraseña === password.value) {
-            if (userData.Papel == "tutor") {
+            if (userData.Papel == "participante") {
             alert("Login successful!");
             error.value = null; // Clear error message
             const user = {username: userData.Nombre};
             sessionStorage.setItem('currentUser', JSON.stringify(user));
-            router.push({ name: 'Home' }); // redirect to homepage
+            router.push({ name: 'Home-participant' }); // redirect to homepage
             } else {
-              error.value = "Esta es una cuenta de participante"
+              error.value = "Esta es una cuenta de tutor"
             }
           } else {
             error.value = "Incorrect password";
@@ -50,12 +50,6 @@
       error.value = "Login failed: " + err.message;
     }
   }
-
-  async function signUp () {
-    router.push({ name: 'Signup' });
-  }
-
-
 
 </script>
 
@@ -71,9 +65,6 @@
     <div class="inputs">
     <h3>Contraseña</h3>
     <input v-model="password"  placeholder="Entra tu contraseña aquí" />
-    <p @click ="signUp">¿No tienes cuenta? Haz clic aquí.</p>
-    <br />
-    <p>Se me olvidó mi contraseña.</p>
     </div>
 
     <button @click="handleLogin">Entrar</button>

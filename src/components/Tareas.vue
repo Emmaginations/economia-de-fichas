@@ -1,7 +1,11 @@
 <script setup>
-  import { ref, onMounted } from "vue"; // Ensure `ref` is imported from Vue
+  import { ref, watch, onMounted } from "vue"; // Ensure `ref` is imported from Vue
   import { getFirestore, collection, query, where, getDocs } from "firebase/firestore"; // Correct imports from Firebase
   import { firebaseApp } from "@/main"; // Import your Firebase app
+  
+  const props = defineProps({
+    participant: String,
+  });
 
   const db = getFirestore(firebaseApp); // Initialize Firestore with your app
   const tareas = ref([]);
@@ -11,7 +15,11 @@
   async function fetchTareas() {
     try {
         const tareasCollection = collection (db, 'Tareas');
-        const q = query(tareasCollection, where("Usario", "==", currentUser.username));
+        const q = query(
+            tareasCollection,
+            where("Usario", "==", currentUser.username), 
+            where("Participante", "==", props.participant)
+        );
         const querySnapshot = await getDocs(q);
         tareas.value = querySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
     } catch (error) {
@@ -22,6 +30,10 @@
   onMounted(() => {
     fetchTareas();
   })
+
+  watch(() => props.participant, () => {
+    fetchTareas(); // Re-fetch tasks whenever participant changes
+  });
 
 </script>
 

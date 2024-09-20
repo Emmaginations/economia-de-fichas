@@ -1,6 +1,5 @@
 <script setup>
   import { ref } from "vue";
-  import { defineEmits } from "vue";
   import { getFirestore, collection, query, where, getDocs, addDoc } from "firebase/firestore"; // Correct imports from Firebase
   import { firebaseApp } from "@/main"; // Import your Firebase app
 
@@ -44,7 +43,7 @@
                 Correo: email.value,
                 Papel: "participante",
                 Tutor: currentUser.username,
-                Contact: "correo",
+                Contacto: "correo",
             });
               
           }else if (contact.value = "WhatsApp"){
@@ -54,7 +53,7 @@
                 Numero: number.value,
                 Papel: "participante",
                 Tutor: currentUser.username,
-                Contact: "whatsapp",
+                Contacto: "whatsapp",
             });
           }
 
