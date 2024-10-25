@@ -2,6 +2,7 @@
    import Tareas from "./Tareas.vue";
    import { useRouter } from 'vue-router';
    import { ref, onMounted } from "vue";
+   import Calendar from "./Calendar.vue";
    import axios from 'axios';
 
    const router = useRouter();
@@ -11,7 +12,7 @@
 
    const participants = ref("");
    const participant = ref("");
-
+   
    async function toParticipants() {
         router.push({ name: 'Participants' });
    }
@@ -42,6 +43,7 @@
 <template>
     <div class="container">
       <h2>¡Hola {{ currentUser.username }}! Vamos a organizar esta semana juntos.</h2>
+      <Calendar :participant="participant" />
       <button @click="toParticipants">Participantes</button>
       <select v-model="participant">
         <option disabled value="">Por favor selecciona un participante</option>

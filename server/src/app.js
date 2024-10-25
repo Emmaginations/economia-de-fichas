@@ -231,6 +231,33 @@ app.post('/api/signupParticipant', async (req, res) => {
     }
   });
 
+app.get('/api/task-counts', async (req, res) => {
+    const { participant, dates } = req.query;
+  
+    if (!participant || !dates || !Array.isArray(dates)) {
+      return res.status(400).json({ success: false, error: "Invalid parameters" });
+    }
+  
+    try {
+      const tasksCollection = db.collection('Tareas');
+      let taskCounts = {};
+  
+      // Loop through the provided dates and fetch tasks for each date
+      for (const date of dates) {
+        const snapshot = await tasksCollection
+          .where("Participante", "==", participant)
+          .where("Fecha", "==", date)
+          .get();
+        taskCounts[date] = snapshot.size; // Count the number of tasks for each date
+      }
+  
+      // Return the task counts for each date
+      res.status(200).json({ success: true, taskCounts });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 app.get('/api/data', async (req, res) => {
     try {
         const snapshot = await db.collection('LoginInfo').get();
