@@ -3,6 +3,8 @@
   import { getFirestore, collection, query, where, getDocs, addDoc } from "firebase/firestore"; // Correct imports from Firebase
   import { firebaseApp } from "@/main"; // Import your Firebase app
 
+  import axios from 'axios';
+  
   const emit = defineEmits();
 
   const db = getFirestore(firebaseApp); // Initialize Firestore with your app
@@ -18,53 +20,38 @@
   const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
 
   async function signUpP() {
-    if (username.value == "") {
-        error.value = "Por favor entra un nombre de usario";
-    } else if (password.value.length < 6) {
-        error.value = "Por favor entra una contraseña valida";
-    }else if (contact.value == null) {
-        error.value = "Por favor selecciona una manera de contacto";
-    }else if (contact.value == "Correo" && email.value == "") {
-        error.value = "Por favor entra un correo";
-    }else if (contact.value == "WhatsApp" && number.value == "") {
-        error.value = "Por favor entra un número";
-    } else {
-      try {
-        const q = query(loginCollection, where("Nombre", "==", username.value));
-        const querySnapshot = await getDocs(q);
+  if (username.value == "") {
+    error.value = "Por favor entra un nombre de usario";
+  } else if (password.value.length < 6) {
+    error.value = "Por favor entra una contraseña valida";
+  } else if (contact.value == null) {
+    error.value = "Por favor selecciona una manera de contacto";
+  } else if (contact.value == "Correo" && email.value == "") {
+    error.value = "Por favor entra un correo";
+  } else if (contact.value == "WhatsApp" && number.value == "") {
+    error.value = "Por favor entra un número";
+  } else {
+    try {
+      // Make a POST request to the backend API endpoint
+      const response = await axios.post('http://localhost:5000/api/signupParticipant', {
+        Nombre: username.value,
+        Contraseña: password.value,
+        Correo: contact.value === "Correo" ? email.value : null,
+        Numero: contact.value === "WhatsApp" ? number.value : null,
+        Papel: "participante",
+        Tutor: currentUser.username,
+        Contacto: contact.value.toLowerCase()
+      });
 
-        if (querySnapshot.empty) {
-        // No matching username found
-          if (contact.value = "Correo"){
-          
-            await addDoc(loginCollection, {
-                Nombre: username.value,
-                Contraseña: password.value,
-                Correo: email.value,
-                Papel: "participante",
-                Tutor: currentUser.username,
-                Contacto: "correo",
-            });
-              
-          }else if (contact.value = "WhatsApp"){
-            await addDoc(loginCollection, {
-                Nombre: username.value,
-                Contraseña: password.value,
-                Numero: number.value,
-                Papel: "participante",
-                Tutor: currentUser.username,
-                Contacto: "whatsapp",
-            });
-          }
-
-          emit('participant-added');
-
-        } else {
-            error.value = "Este nombre de usario ya se usa"
-        }
-      }catch (err) {
-        error.value = "Failed to register: " + err.message;
+      // Handle backend response
+      if (response.data.success) {
+        emit('participant-added');
+      } else {
+        error.value = response.data.error || "Registro fallado";
       }
+    } catch (err) {
+      error.value = "Failed to register: " + (err.response?.data?.error || err.message);
+    }
   }
 }
 

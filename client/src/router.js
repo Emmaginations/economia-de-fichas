@@ -5,8 +5,6 @@ import Signup from './components/Signup.vue';
 import Participants from './components/Participants.vue';
 import Login_participant from './components/Login_participant.vue';
 import Home_participant from './components/Home_participant.vue';
-import Register from './components/Register.vue';
-import Test from './components/test.vue';
 
 const routes = [
   { path: '/', name: 'Login', component: Login }, // Default route is login
@@ -15,8 +13,6 @@ const routes = [
   { path: '/participants', name: 'Participants', component: Participants },
   { path: '/login-participante', name: 'Login-participant', component: Login_participant},
   { path: '/home-participante', name: 'Home-participant', component: Home_participant },
-  { path: '/register', name: 'register', component: Register },
-  { path: '/test', name: 'test', component: Test },
 ];
 
 const router = createRouter({

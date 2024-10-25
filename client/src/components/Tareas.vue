@@ -1,14 +1,12 @@
 <script setup>
   import { ref, watch, onMounted } from "vue"; // Ensure `ref` is imported from Vue
-  import { getFirestore, collection, query, where, getDocs } from "firebase/firestore"; // Correct imports from Firebase
-  import { firebaseApp } from "@/main"; // Import your Firebase app
   import AddTareas from './AddTareas.vue';
+  import axios from 'axios';
 
   const props = defineProps({
     participant: String,
   });
 
-  const db = getFirestore(firebaseApp); // Initialize Firestore with your app
   const tareas = ref([]);
   const add = ref(false);
 
@@ -16,14 +14,19 @@
 
   async function fetchTareas() {
     try {
-        const tareasCollection = collection (db, 'Tareas');
-        const q = query(
-            tareasCollection,
-            where("Usario", "==", currentUser.username), 
-            where("Participante", "==", props.participant)
-        );
-        const querySnapshot = await getDocs(q);
-        tareas.value = querySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+      const response = await axios.get('http://localhost:5000/api/tareas', {
+        params: {
+          usuario: currentUser.username,
+          participante: props.participant
+        }
+      });
+
+      // Check if the response indicates success
+      if (response.data.success) {
+        tareas.value = response.data.tareas;
+      } else {
+      console.error('Failed to fetch tasks:', response.data.error);
+    }
     } catch (error) {
         console.error('Error fetching tasks:', error);
     }
@@ -52,7 +55,7 @@
 <div>
 <h3>Tareas</h3>
 
-<!---<AddTareas :participant="participant" @tarea-added="resetState" v-if="add"/>-->
+<AddTareas :participant="participant" @tarea-added="resetState" v-if="add"/>
 
 <button @click="addTareas">Agregar Tarea</button>
 <div id="task-block">

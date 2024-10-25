@@ -1,7 +1,6 @@
 <script setup>
   import { ref } from "vue";
-  import { getFirestore, collection, addDoc } from "firebase/firestore"; // Correct imports from Firebase
-  import { firebaseApp } from "@/main"; // Import your Firebase app
+ import axios from 'axios';
 
    const props = defineProps({
     participant: String,
@@ -9,26 +8,36 @@
 
    const emit = defineEmits();
 
-   const db = getFirestore(firebaseApp); // Initialize Firestore with your app
-   const tareasCollection = collection (db, 'Tareas');
-
    const objective = ref("");
    const observations = ref("");
    const error = ref(null);
 
 
    async function addTask() {
-    if (objective.value == "") {
+    if (objective.value === "") {
         error.value = "Por favor entra un objetivo";
-    } else {
-        await addDoc(tareasCollection, {
-            Cumplido: false,
+        return;
+    }
+    
+    try {
+        // Prepare the task data
+        const taskData = {
             Nombre: objective.value,
             Participante: participant,
             Usario: currentUser.username,
-        });
+        };
 
-        emit("tarea-added");
+        // Send a POST request to the backend API to add the task
+        const response = await axios.post('http://localhost:5000/api/addtarea', taskData);
+
+        // Check the response to see if the task was added successfully
+        if (response.data.success) {
+            emit("tarea-added"); // Emit the event only if the request was successful
+        } else {
+            error.value = response.data.error || "Error al agregar la tarea";
+        }
+    }catch (err) {
+        error.value = "Error al agregar la tarea: " + (err.response?.data?.error || err.message);
     }
    }
 </script>

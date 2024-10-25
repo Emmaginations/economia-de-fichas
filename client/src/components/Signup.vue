@@ -1,12 +1,9 @@
 <script setup>
   import { ref } from "vue"; // Ensure `ref` is imported from Vue
   import { useRouter } from 'vue-router';
-  import { getFirestore, collection, query, where, getDocs, addDoc } from "firebase/firestore"; // Correct imports from Firebase
-  import { firebaseApp } from "@/main"; // Import your Firebase app
+  import axios from 'axios';
 
-  const db = getFirestore(firebaseApp); // Initialize Firestore with your app
-  const loginCollection = collection(db, "LoginInfo"); // Reference to the Firestore collection
-
+ 
   const router = useRouter();
 
   // Reactive data properties
@@ -15,6 +12,7 @@
   const password2 = ref("");
   const error = ref(null);
   const email = ref("");
+  const email2 = ref("")
   const checked = ref(false);
 
   async function signUp() {
@@ -27,28 +25,27 @@
     } else if (email.value == "") {
         error.value = "Por favor entra un correo";
     } else if (email.value != email2.value) {
-        error.value = "Las contraseñas no coinciden";
+        error.value = "Los correos no coinciden";
     } else if (checked.value == false) {
         error.value = "Por favor acepta los terminos y condiciones"
     } else {
       try {
-        const q = query(loginCollection, where("Nombre", "==", username.value));
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-        // No matching username found
-            await addDoc(loginCollection, {
-                Nombre: username.value,
-                Contraseña: password.value,
-                Correo: email.value,
-                Papel: "tutor",
+        const response = await axios.post('http://localhost:5000/api/signup', {
+                "Nombre": username.value,
+                "Contraseña": password.value,
+                "Correo": email.value,
+                "Papel": "tutor",
             });
-            router.push({ name: 'Login'});
-        } else {
-            error.value = "Este nombre de usario ya se usa"
-        }
+
+            // Handle backend response
+            if (response.data.success) {
+                // Redirect to the login page on successful registration
+                router.push({ name: 'Login' });
+            } else {
+                error.value = response.data.error || "Registro fallado";
+            }
       }catch (err) {
-        error.value = "Failed to register: " + err.message;
+        error.value = "Registro fallado: " + err.response?.data?.error || err.message;
       }
   }
 }

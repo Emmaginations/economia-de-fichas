@@ -2,12 +2,7 @@
    import Tareas from "./Tareas.vue";
    import { useRouter } from 'vue-router';
    import { ref, onMounted } from "vue";
-   import { getFirestore, collection, query, where, getDocs } from "firebase/firestore"; // Correct imports from Firebase
-   import { firebaseApp } from "@/main"; 
-
-   const db = getFirestore(firebaseApp); // Initialize Firestore with your app
-   const loginCollection = collection(db, "LoginInfo"); // Reference to the Firestore collection
-
+   import axios from 'axios';
 
    const router = useRouter();
 
@@ -23,11 +18,18 @@
 
    async function fetchParticipants() {
     try {
-        const q = query(loginCollection, where("Tutor", "==", currentUser.username));
-        const querySnapshot = await getDocs(q);
-        participants.value = querySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+      const response = await axios.get('http://localhost:5000/api/participants', {
+        params: { tutor: currentUser.username }
+      });
+
+    // Check if the response indicates success
+      if (response.data.success) {
+        participants.value = response.data.participants;
+      } else {
+        console.error('Failed to fetch participants:', response.data.error);
+      }
     } catch (error) {
-        console.error('Error fetching tasks:', error);
+        console.error('Error fetching participants:', error);
     }
    }
 

@@ -1,11 +1,7 @@
 <script setup>
    import { ref } from "vue"; // Ensure `ref` is imported from Vue
    import { useRouter } from 'vue-router';
-  import { getFirestore, collection, query, where, getDocs } from "firebase/firestore"; // Correct imports from Firebase
-  import { firebaseApp } from "@/main"; // Import your Firebase app
-
-  const db = getFirestore(firebaseApp); // Initialize Firestore with your app
-  const loginCollection = collection(db, "LoginInfo"); // Reference to the Firestore collection
+  import axios from 'axios';
 
   const router = useRouter();
 
@@ -16,40 +12,41 @@
 
   // Async function to handle login logic
   async function handleLogin() {
-    error.value = null; // Clear error before starting
+  error.value = null; // Clear error before starting
 
-    try {
-      // Query Firestore to find a document where "Nombre" equals entered username
-      const q = query(loginCollection, where("Nombre", "==", username.value));
-      const querySnapshot = await getDocs(q);
+  try {
+    // Make a POST request to the backend API endpoint for login
+    const response = await axios.post('http://localhost:5000/api/loginparticipant', {
+      Nombre: username.value,
+      Contraseña: password.value
+    });
 
-      if (querySnapshot.empty) {
-        // No matching username found
-        error.value = "Username not found";
-      }else {
-        // Iterate over the documents (though there should ideally be only one match)
-        querySnapshot.forEach((doc) => {
-          const userData = doc.data();
-          if (userData.Contraseña === password.value) {
-            if (userData.Papel == "participante") {
-            alert("Login successful!");
-            error.value = null; // Clear error message
-            const user = {username: userData.Nombre};
-            sessionStorage.setItem('currentUser', JSON.stringify(user));
-            router.push({ name: 'Home-participant' }); // redirect to homepage
-            } else {
-              error.value = "Esta es una cuenta de tutor"
-            }
-          } else {
-            error.value = "Incorrect password";
-          }
-        });
+    // Handle backend response
+    if (response.data.success) {
+      const userData = response.data;
+      
+      // Check the user role and redirect accordingly
+      if (userData.Papel === "participante") {
+        alert("Login successful!");
+        error.value = null; // Clear error message
+
+        // Save current user data to session storage
+        const user = { username: userData.Nombre };
+        sessionStorage.setItem('currentUser', JSON.stringify(user));
+
+        // Redirect to participant's homepage
+        router.push({ name: 'Home-participant' });
+      } else {
+        error.value = "Esta es una cuenta de tutor";
       }
-    } catch (err) {
-      // Handle Firestore errors
-      error.value = "Login failed: " + err.message;
+    } else {
+      error.value = response.data.error || "Login failed";
     }
+  } catch (err) {
+    // Handle errors from the backend call
+    error.value = "Login failed: " + (err.response?.data?.error || err.message);
   }
+}
 
 </script>
 

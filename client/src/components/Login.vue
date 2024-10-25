@@ -6,7 +6,6 @@
   import axios from 'axios';
 
 
-
   const db = getFirestore(firebaseApp); // Initialize Firestore with your app
   const loginCollection = collection(db, "LoginInfo"); // Reference to the Firestore collection
 
@@ -23,34 +22,28 @@
 
     try {
       // Query Firestore to find a document where "Nombre" equals entered username
-      const q = query(loginCollection, where("Nombre", "==", username.value));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        // No matching username found
-        error.value = "Username not found";
-      }else {
-        // Iterate over the documents (though there should ideally be only one match)
-        querySnapshot.forEach((doc) => {
-          const userData = doc.data();
-          if (userData.Contraseña === password.value) {
-            if (userData.Papel == "tutor") {
-            alert("Login successful!");
-            error.value = null; // Clear error message
-            const user = {username: userData.Nombre};
-            sessionStorage.setItem('currentUser', JSON.stringify(user));
-            router.push({ name: 'Home' }); // redirect to homepage
-            } else {
-              error.value = "Esta es una cuenta de participante"
-            }
-          } else {
-            error.value = "Incorrect password";
-          }
+      const response = await axios.post('http://localhost:5000/api/login', {
+            Nombre: username.value,
+            Contraseña: password.value
         });
-      }
+      
+      const userData = response.data;
+      if (userData.success) {
+            if (userData.Papel === "tutor") {
+                alert("Login successful!");
+                const user = { username: userData.Nombre };
+                sessionStorage.setItem('currentUser', JSON.stringify(user));
+                router.push({ name: 'Home' }); // redirect to homepage
+            } else {
+                error.value = "Esta es una cuenta de participante";
+            }
+        } else {
+            error.value = "Login incorrecto"; // Handle unsuccessful login
+        }
+
     } catch (err) {
       // Handle Firestore errors
-      error.value = "Login failed: " + err.message;
+      error.value = "Login failed: " + err.response?.data?.error || err.message;
     }
   }
 
