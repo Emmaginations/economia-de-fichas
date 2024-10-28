@@ -1,17 +1,31 @@
 <script setup>
- import { ref } from "vue";
+  import { ref, computed } from "vue";
  import axios from 'axios';
+ import { DatePicker } from 'v-calendar';
 
    const props = defineProps({
     participant: String,
    });
 
-   const emit = defineEmits();
+   const emit = defineEmits(['tarea-added']);
 
    const objective = ref("");
    const observations = ref("");
    const error = ref(null);
+   const checked = ref(false);
+   const selectedDate=ref(new Date());
 
+   const today = new Date();
+
+   const minDate = computed(() => today);
+
+   const maxDate = computed(() => {
+        const date = new Date(today);
+        date.setDate(date.getDate() + 28); // 4 weeks = 28 days
+        return date;
+    });
+
+   const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
 
    async function addTask() {
     if (objective.value === "") {
@@ -23,8 +37,9 @@
         // Prepare the task data
         const taskData = {
             Nombre: objective.value,
-            Participante: participant,
+            Participante: props.participant,
             Usario: currentUser.username,
+            Fecha: selectedDate.value.toISOString().split('T')[0]
         };
 
         // Send a POST request to the backend API to add the task
@@ -53,6 +68,25 @@
     <div class="inputs">
         <h3>Observaciones</h3>
         <input v-model="observations"  placeholder="Entra las observaciones para la tarea" />
+    </div>
+
+    <div class="inputs">
+      <h3>Fecha</h3>
+      <DatePicker
+        v-model="selectedDate"
+        :min-date="minDate"
+        :max-date="maxDate"
+        :masks="{ input: 'DD/MM/YYYY' }"
+      >
+        <template v-slot="{ inputValue, inputEvents }">
+          <input
+            class="date-input"
+            :value="inputValue"
+            v-on="inputEvents"
+            placeholder="Selecciona una fecha"
+          />
+        </template>
+      </DatePicker>
     </div>
 
     <div class="inputs">

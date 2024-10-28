@@ -5,6 +5,7 @@
 
   const props = defineProps({
     participant: String,
+    selectedDate: String,
   });
 
   const tareas = ref([]);
@@ -13,11 +14,15 @@
   const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
 
   async function fetchTareas() {
+    if (!props.participant || !props.selectedDate) {
+      return;
+    }
     try {
       const response = await axios.get('http://localhost:5000/api/tareas', {
         params: {
           usuario: currentUser.username,
-          participante: props.participant
+          participante: props.participant,
+          fecha: props.selectedDate
         }
       });
 
@@ -32,6 +37,26 @@
     }
   }
 
+  async function updateTaskStatus(tarea) {
+  try {
+    const response = await axios.put(`http://localhost:5000/api/tareas/${tarea.id}`, {
+      Cumplido: tarea.Cumplido
+    });
+
+    if (response.data.success) {
+      console.log('Task status updated successfully');
+    } else {
+      console.error('Failed to update task status:', response.data.error);
+      // Revert the checkbox if the update failed
+      tarea.Cumplido = !tarea.Cumplido;
+    }
+  } catch (error) {
+    console.error('Error updating task status:', error);
+    // Revert the checkbox if the update failed
+    tarea.Cumplido = !tarea.Cumplido;
+  }
+}
+
   onMounted(() => {
     fetchTareas();
   })
@@ -45,9 +70,15 @@
     fetchTareas();
   }
 
-  watch(() => props.participant, () => {
-    fetchTareas(); // Re-fetch tasks whenever participant changes
-  });
+  watch([() => props.participant, () => props.selectedDate], ([newParticipant, newDate], [oldParticipant, oldDate]) => {
+  console.log('Participant or date changed:', newParticipant, newDate);
+  if (newParticipant !== oldParticipant || newDate !== oldDate) {
+    tareas.value = []; // Clear tasks immediately when participant or date changes
+    if (newParticipant && newDate) {
+      fetchTareas();
+    }
+  }
+});
 
 </script>
 
@@ -55,13 +86,24 @@
 <div>
 <h3>Tareas</h3>
 
-<AddTareas :participant="participant" @tarea-added="resetState" v-if="add"/>
+<AddTareas :participant="props.Dparticipant" @tarea-added="resetState" v-if="add"/>
 
 <button @click="addTareas">Agregar Tarea</button>
 <div id="task-block">
     <div class="task" v-for="tarea in tareas" :key="tarea.id">
-      <p>{{ tarea.Nombre }}</p>
-      <p>Cumplido: {{ tarea.Cumplido }}</p>
+      <div class="task-info">
+          <p>{{ tarea.Nombre }}</p>
+        </div>
+        <div class="task-status">
+          <label class="checkbox-container">
+            <input 
+              type="checkbox" 
+              :checked="tarea.Cumplido" 
+              @change="() => { tarea.Cumplido = !tarea.Cumplido; updateTaskStatus(tarea); }"
+            >
+            <span class="checkmark"></span>
+          </label>
+        </div>
     </div>
 </div>
 

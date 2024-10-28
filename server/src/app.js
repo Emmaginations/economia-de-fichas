@@ -99,12 +99,13 @@ app.get('/api/participants', async (req, res) => {
 });
 
 app.get('/api/tareas', async (req, res) => {
-    const { usuario, participante } = req.query; // Get parameters from query string
-
+    const { usuario, participante, fecha } = req.query; // Get parameters from query string
+    console.log(fecha);
     try {
         const snapshot = await db.collection('Tareas')
             .where("Usario", "==", usuario)
             .where("Participante", "==", participante)
+            .where("Fecha", "==", fecha)
             .get();
 
         if (snapshot.empty) {
@@ -120,7 +121,7 @@ app.get('/api/tareas', async (req, res) => {
 });
 
 app.post('/api/addtarea', async (req, res) => {
-    const { Nombre, Participante, Usario } = req.body;
+    const { Nombre, Participante, Usario, Fecha } = req.body;
 
     try {
         const newTask = {
@@ -128,6 +129,7 @@ app.post('/api/addtarea', async (req, res) => {
             Nombre,
             Participante,
             Usario,
+            Fecha,
         };
 
         // Add new task to Firestore
@@ -257,6 +259,27 @@ app.get('/api/task-counts', async (req, res) => {
       res.status(500).json({ success: false, error: error.message });
     }
 });
+
+app.put('/api/tareas/:id', async (req, res) => {
+    const taskId = req.params.id;
+    const { Cumplido } = req.body;
+  
+    try {
+      const taskRef = db.collection('Tareas').doc(taskId);
+      const task = await taskRef.get();
+  
+      if (!task.exists) {
+        return res.status(404).json({ success: false, error: 'Task not found' });
+      }
+  
+      await taskRef.update({ Cumplido });
+  
+      return res.status(200).json({ success: true, message: 'Task updated successfully' });
+    } catch (error) {
+      console.error('Error updating task:', error);
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  });
 
 app.get('/api/data', async (req, res) => {
     try {

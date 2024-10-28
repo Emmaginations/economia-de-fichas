@@ -4,20 +4,21 @@ import axios from 'axios';
 
 const props = defineProps({
   participant: String,
+  week: String,
+  selectedDate: String,
 });
 
-const emit = defineEmits(['update:week']);
+const emit = defineEmits(['update:week', 'update:selectedDate']);
 
 const currentDate = new Date();
 const weeks = ref([]);
-const selectedWeek = ref("");
+const selectedWeek = ref(props.week || "");
 const weekDays = ref([]);
 const taskCounts = ref({});
+const selectedDay = ref(props.selectedDate || null);
 
-// Generate weeks for the next month
 // Helper function to find the start of the week (Monday in this case)
 const getStartOfWeek = (date) => {
-  // Clone the date and find the previous Monday (or Sunday depending on start day)
   const day = date.getDay();
   const diff = (day === 0 ? -6 : 1) - day; // Calculate the difference to reach Monday (adjust -6 for Sunday start)
   const startOfWeek = new Date(date);
@@ -26,19 +27,25 @@ const getStartOfWeek = (date) => {
 };
 
 // Generate weeks for the next month
-weeks.value = [];
-let startOfWeek = getStartOfWeek(currentDate); // Find the start of the current week
+const generateWeeks = () => {
+  weeks.value = [];
+  let startOfWeek = getStartOfWeek(currentDate); // Find the start of the current week
 
-for (let i = 0; i < 5; i++) {
-  const start = new Date(startOfWeek);
-  start.setDate(startOfWeek.getDate() + i * 7);
-  const end = new Date(start);
-  end.setDate(start.getDate() + 6);
-  weeks.value.push({
-    value: start.toISOString().split('T')[0],
-    label: `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`,
-  });
-}
+  for (let i = 0; i < 5; i++) {
+    const start = new Date(startOfWeek);
+    start.setDate(startOfWeek.getDate() + i * 7);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    weeks.value.push({
+      value: start.toISOString().split('T')[0],
+      label: `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`,
+    });
+  }
+
+  if (!selectedWeek.value) {
+    selectedWeek.value = weeks.value[0].value;
+  }
+};
 
 const updateWeekDays = () => {
   if (selectedWeek.value) {
@@ -78,6 +85,11 @@ const fetchTaskCounts = async () => {
   }
 };
 
+const selectDay = (day) => {
+  selectedDay.value = day;
+  emit('update:selectedDate', day);
+};
+
 watch(() => props.week, (newWeek) => {
   selectedWeek.value = newWeek;
   updateWeekDays();
@@ -90,10 +102,25 @@ watch(selectedWeek, (newWeek) => {
   fetchTaskCounts();
 });
 
+watch(() => props.selectedDate, (newDate) => {
+  selectedDay.value = newDate;
+});
+
+watch(() => props.participant, () => {
+  fetchTaskCounts();
+});
+
 const formattedDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', timeZone: 'UTC' });
 };
+
+const isSelectedDay = computed(() => {
+  return (day) => day === selectedDay.value;
+});
+
+generateWeeks();
+updateWeekDays();
 </script>
 
 <template>
@@ -107,7 +134,12 @@ const formattedDate = (dateString) => {
       </select>
     </div>
     <div class="calendar-grid">
-      <div v-for="day in weekDays" :key="day" class="day-block">
+      <div 
+        v-for="day in weekDays" 
+        :key="day" 
+        :class="['day-block', { 'selected': isSelectedDay(day) }]"
+        @click="selectDay(day)"
+      >
         <div class="date">{{ formattedDate(day) }}</div>
         <div class="task-count">
           <span>{{ taskCounts[day] || 0 }}</span>
@@ -153,6 +185,12 @@ const formattedDate = (dateString) => {
   flex-direction: column;
   justify-content: space-between;
   min-height: 100px;
+  border: 2px solid transparent;
+}
+
+.day-block.selected {
+    background-color: lightgrey;
+    border-color:blue;
 }
 
 .date {

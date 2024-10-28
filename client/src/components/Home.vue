@@ -1,7 +1,7 @@
 <script setup>
    import Tareas from "./Tareas.vue";
    import { useRouter } from 'vue-router';
-   import { ref, onMounted } from "vue";
+   import { ref, onMounted, watch } from "vue";
    import Calendar from "./Calendar.vue";
    import axios from 'axios';
 
@@ -12,7 +12,8 @@
 
    const participants = ref("");
    const participant = ref("");
-   
+   const selectedDate = ref('');
+
    async function toParticipants() {
         router.push({ name: 'Participants' });
    }
@@ -34,8 +35,18 @@
     }
    }
 
+   function handleParticipantChange() {
+    selectedDate.value = '';
+   }
+
    onMounted(() => {
     fetchParticipants();
+  })
+
+  watch(participant, (newParticipant) => {
+    if (newParticipant) {
+      handleParticipantChange();
+    }
   })
 
 </script>
@@ -43,14 +54,15 @@
 <template>
     <div class="container">
       <h2>¡Hola {{ currentUser.username }}! Vamos a organizar esta semana juntos.</h2>
-      <Calendar :participant="participant" />
       <button @click="toParticipants">Participantes</button>
       <select v-model="participant">
         <option disabled value="">Por favor selecciona un participante</option>
         <option class="participant" v-for="participant in participants" :key="participant.id">{{participant.Nombre }}</option>
       </select>
       
-      <Tareas :participant="participant"/>
+      <Calendar :selectedDate="selectedDate" :participant="participant" @update:selectedDate="selectedDate = $event"/>
+
+      <Tareas :participant="participant" :selectedDate="selectedDate"/>
 
     </div>
 </template>
