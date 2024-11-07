@@ -1,12 +1,19 @@
 <script setup>
   import AddParticipants from './AddParticipants.vue';
   import { ref, onMounted } from "vue"; // Ensure `ref` is imported from Vue
+  import { useRouter } from 'vue-router';
   import axios from 'axios';
 
   const participants = ref([]);
   const add = ref(false);
 
+  const router = useRouter();
+
   const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+
+  async function toHome() {
+        router.push({ name: 'Home' });
+   }
 
   async function fetchParticipants() {
   try {
@@ -46,7 +53,7 @@
   <h1>Participants</h1>
 
 <AddParticipants @participant-added="resetState" v-if="add"/>
-
+<button @click="toHome">Página Principal</button>
 <button v-if="!add" @click="addParticipants">Add Participants</button>
  <div id="participant-block">
     <div class="task" v-for="participant in participants" :key="participant.id">

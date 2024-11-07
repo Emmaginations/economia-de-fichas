@@ -7,6 +7,7 @@
     participant: String,
     selectedDate: String,
   });
+  const emit = defineEmits(['task-updated']);
 
   const tareas = ref([]);
   const add = ref(false);
@@ -50,6 +51,7 @@
       // Revert the checkbox if the update failed
       tarea.Cumplido = !tarea.Cumplido;
     }
+    emit('task-updated');
   } catch (error) {
     console.error('Error updating task status:', error);
     // Revert the checkbox if the update failed
@@ -89,7 +91,9 @@
 <AddTareas :participant="props.Dparticipant" @tarea-added="resetState" v-if="add"/>
 
 <button @click="addTareas">Agregar Tarea</button>
+
 <div id="task-block">
+    <h3>{{  selectedDate }}</h3>
     <div class="task" v-for="tarea in tareas" :key="tarea.id">
       <div class="task-info">
           <p>{{ tarea.Nombre }}</p>

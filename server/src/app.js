@@ -281,17 +281,92 @@ app.put('/api/tareas/:id', async (req, res) => {
     }
   });
 
-app.get('/api/data', async (req, res) => {
+  app.get('/api/prizes', async (req, res) => {
+    const { participant } = req.query;
     try {
-        const snapshot = await db.collection('LoginInfo').get();
-        
-        const login = snapshot.docs.map(doc=> ({ id: doc.id, ...doc.data()}));
-        return res.status(200).json(login);
+      const snapshot = await db.collection('Premios').where('Participante', '==', participant).get();
+      if (snapshot.empty) {
+        return res.status(200).json({ success: true, prizes: {} });
+      }
+      const prizes = snapshot.docs[0].data();
+      return res.status(200).json({ success: true, prizes });
     } catch (error) {
-        console.error('Error fetching data from Firestore:', error);
-        res.status(500).json({ error: error.message });
+      console.error('Error fetching prizes:', error);
+      return res.status(500).json({ success: false, error: error.message });
     }
-})
+  });
+
+  app.put('/api/prizes', async (req, res) => {
+    const { participant, level, value } = req.body;
+    try {
+      const snapshot = await db.collection('Premios').where('Participante', '==', participant).get();
+      if (snapshot.empty) {
+        return res.status(200).json({ success: true, prizes: {} });
+      }
+      const docRef = snapshot.docs[0].ref;
+      await docRef.update({ [level]: value });
+      return res.status(200).json({ success: true, message: 'Prize updated successfully' });
+    } catch (error) {
+      console.error('Error updating prize:', error);
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.post('/api/prizes', async (req, res) => {
+    const { participant, prizes } = req.body;
+  
+    try {
+      const docRef = await db.collection('Premios').add({
+        Participante: participant,
+        ...prizes
+      });
+  
+      res.status(200).json({ success: true, id: docRef.id });
+    } catch (error) {
+      console.error('Error creating prizes:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/stars-earned', async (req, res) => {
+    try {
+      const { participant, week } = req.query;
+      console.log('Received request for stars-earned:', { participant, week });
+  
+      if (!participant || !week || !/^\d{4}-\d{2}-\d{2}$/.test(week)) {
+        console.log("Incorrect params");
+        return res.status(400).json({ success: false, error: 'Invalid participant or week format' });
+      }
+  
+      const startDate = week;
+    
+      // Calculate the end date (7 days later) in YYYY-MM-DD format
+      const endDate = new Date(week);
+      endDate.setDate(endDate.getDate() + 6);
+      const endDateString = endDate.toISOString().split('T')[0];
+  
+      console.log('Date range:', { startDate, endDate: endDateString });
+  
+      const snapshot = await db.collection('Tareas')
+        .where('Participante', '==', participant)
+        .where('Fecha', '>=', startDate)
+        .where('Fecha', '<=', endDateString)
+        .where('Cumplido', 'in', [true, 'true'])
+        .get();
+
+      console.log('Query executed successfully');
+  
+      const starsEarned = snapshot.size;
+      console.log('Query result size:', starsEarned);
+  
+      return res.status(200).json({ success: true, starsEarned });
+    } catch (error) {
+      console.error('Error fetching stars earned:', error);
+      console.error('Stack trace:', error.stack);
+      console.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      return res.status(500).json({ success: false, error: 'An unexpected error occurred' });
+    }
+  });
 
 app.listen(PORT, () => {
     console.log('Server is running on http://localhost:${PORT}');
