@@ -18,7 +18,6 @@ const weekDays = ref([]);
 const taskCounts = ref({});
 const selectedDay = ref(props.selectedDate || null);
 
-const starsEarned = ref(0);
 
 const isCreatingNewPrizes = ref(false);
 const statusMessage = ref('');

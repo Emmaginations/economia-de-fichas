@@ -368,6 +368,72 @@ app.put('/api/tareas/:id', async (req, res) => {
     }
   });
 
+
+  app.post('/api/recover-password', async (req, res) => {
+    const { email } = req.body;
+  
+    try {
+      const user = await User.findOne({ email });
+      if (!user) {
+        // Don't reveal that the email doesn't exist
+        return res.status(200).json({ message: 'If the email exists, a recovery link will be sent.' });
+      }
+  
+      const token = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 3600000); // 1 hour from now
+  
+      user.resetPasswordToken = token;
+      user.resetPasswordExpires = expiresAt;
+      await user.save();
+  
+      const resetLink = `https://yourdomain.com/reset-password?token=${token}`;
+  
+      // Send email with resetLink
+      const transporter = nodemailer.createTransport({
+        // Configure your email service here
+      });
+  
+      await transporter.sendMail({
+        from: 'noreply@yourdomain.com',
+        to: email,
+        subject: 'Password Reset Request',
+        html: `Click <a href="${resetLink}">here</a> to reset your password. This link will expire in 1 hour.`
+      });
+  
+      res.status(200).json({ message: 'If the email exists, a recovery link will be sent.' });
+    } catch (error) {
+      console.error('Password recovery error:', error);
+      res.status(500).json({ message: 'An error occurred during the password recovery process.' });
+    }
+  });
+  
+  // Password reset endpoint
+  app.post('/api/reset-password', async (req, res) => {
+    const { token, password } = req.body;
+  
+    try {
+      const user = await User.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() }
+      });
+  
+      if (!user) {
+        return res.status(400).json({ message: 'Password reset token is invalid or has expired.' });
+      }
+  
+      user.password = password; // Assume you're hashing the password before saving
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save();
+  
+      res.status(200).json({ message: 'Your password has been successfully reset.' });
+    } catch (error) {
+      console.error('Password reset error:', error);
+      res.status(500).json({ message: 'An error occurred during the password reset process.' });
+    }
+  });
+
+
 app.listen(PORT, () => {
     console.log('Server is running on http://localhost:${PORT}');
 });
