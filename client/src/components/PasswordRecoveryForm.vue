@@ -1,35 +1,22 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref } from 'vue'
 import axios from 'axios'
 
-const route = useRoute()
-const router = useRouter()
-
-const password = ref('')
-const confirmPassword = ref('')
+const email = ref('')
 const isLoading = ref(false)
 const error = ref('')
 const success = ref(false)
-const token = ref('')
-
-onMounted(() => {
-  token.value = route.query.token
-})
 
 const handleSubmit = async () => {
-  if (password.value !== confirmPassword.value) {
-    error.value = 'Passwords do not match'
-    return
-  }
   isLoading.value = true
   error.value = ''
+  success.value = false
 
   try {
-    await axios.post('/api/reset-password', { token: token.value, password: password.value })
+    await axios.post('http://localhost:5000/api/recover-password', { email: email.value })
     success.value = true
   } catch (err) {
-    error.value = 'Failed to reset password. Please try again.'
+    error.value = 'Failed to send recovery email. Please try again.'
   } finally {
     isLoading.value = false
   }
@@ -39,7 +26,7 @@ const handleSubmit = async () => {
 <template>
   <div class="flex items-center justify-center min-h-screen bg-gray-100">
     <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-md">
-      <h2 class="text-3xl font-bold text-center text-gray-900">Reset Password</h2>
+      <h2 class="text-3xl font-bold text-center text-gray-900">Recover Password</h2>
       <div v-if="success" class="bg-green-50 border-green-200 p-4 rounded-md">
         <div class="flex">
           <div class="flex-shrink-0">
@@ -50,30 +37,21 @@ const handleSubmit = async () => {
           <div class="ml-3">
             <h3 class="text-sm font-medium text-green-800">Success</h3>
             <div class="mt-2 text-sm text-green-700">
-              <p>Your password has been successfully reset. You can now log in with your new password.</p>
+              <p>If an account exists for {{ email }}, you will receive a password reset link shortly.</p>
             </div>
           </div>
         </div>
       </div>
       <form v-else @submit.prevent="handleSubmit" class="space-y-4">
         <div class="space-y-2">
-          <label for="password" class="block text-sm font-medium text-gray-700">New Password</label>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
           <input
-            id="password"
-            v-model="password"
-            type="password"
+            id="email"
+            v-model="email"
+            type="email"
             required
             class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-          >
-        </div>
-        <div class="space-y-2">
-          <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
-          <input
-            id="confirmPassword"
-            v-model="confirmPassword"
-            type="password"
-            required
-            class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="Enter your email"
           >
         </div>
         <div v-if="error" class="bg-red-50 border-red-200 p-4 rounded-md">
@@ -96,7 +74,7 @@ const handleSubmit = async () => {
           :disabled="isLoading"
           class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          {{ isLoading ? 'Resetting...' : 'Reset Password' }}
+          {{ isLoading ? 'Sending...' : 'Send Recovery Link' }}
         </button>
       </form>
     </div>

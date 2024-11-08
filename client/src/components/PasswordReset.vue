@@ -26,7 +26,7 @@ const handleSubmit = async () => {
   error.value = ''
 
   try {
-    await axios.post('/api/reset-password', { token: token.value, password: password.value })
+    await axios.post('http://localhost:5000/api/reset-password', { token: token.value, password: password.value })
     success.value = true
   } catch (err) {
     error.value = 'Failed to reset password. Please try again.'

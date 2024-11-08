@@ -51,6 +51,10 @@
     router.push({ name: 'Signup' });
   }
 
+  async function recoverPassword () {
+    router.push({ name: 'Recover-password' });
+  }
+
 
 
 </script>
@@ -69,7 +73,7 @@
     <input v-model="password"  placeholder="Entra tu contraseña aquí" />
     <p @click ="signUp">¿No tienes cuenta? Haz clic aquí.</p>
     <br />
-    <p>Se me olvidó mi contraseña.</p>
+    <p @click ="recoverPassword">Se me olvidó mi contraseña.</p>
     </div>
 
     <button @click="handleLogin">Entrar</button>

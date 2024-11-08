@@ -1,9 +1,14 @@
+require('dotenv').config();
 console.log("hello")
 
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
+const nodemailer = require('nodemailer');
+const { google } = require('googleapis');
+const crypto = require('crypto');
+
 
 
 const admin = require('firebase-admin');
@@ -23,35 +28,48 @@ app.use(morgan('combined')) // allows easy logging
 app.use(bodyParser.json()) // allows express app to easily parse json requests
 app.use(cors()) // allows any client to access - can be secutity risk
 
+console.log('Email User:', process.env.EMAIL_USER);
+
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GMAIL_CLIENT_ID,
+  process.env.GMAIL_CLIENT_SECRET,
+  'https://developers.google.com/oauthplayground'
+);
+
+oauth2Client.setCredentials({
+  refresh_token: process.env.GMAIL_REFRESH_TOKEN
+});
+
+
 app.post('/api/login', async (req, res) => {
-    const { Nombre, Contraseña } = req.body;
-    try {
-        const snapshot = await db.collection('LoginInfo').where("Nombre", "==", Nombre).get();
+  const { Nombre, Contraseña } = req.body;
+  try {
+      const snapshot = await db.collection('LoginInfo').where("Nombre", "==", Nombre).get();
 
-        if (snapshot.empty) {
-            return res.status(404).json({ success: false, error: 'Username not found' });
-        }
+      if (snapshot.empty) {
+          return res.status(404).json({ success: false, error: 'Username not found' });
+      }
 
-        let userFound = false;
+      let userFound = false;
 
-        snapshot.forEach(doc => {
-            const userData = doc.data();
-            if (userData.Contraseña === Contraseña) {
-                userFound = true;
-                return res.status(200).json({
-                    success: true,
-                    Nombre: userData.Nombre,
-                    Papel: userData.Papel
-                });
-            }
-        });
+      snapshot.forEach(doc => {
+          const userData = doc.data();
+          if (userData.Contraseña === Contraseña) {
+              userFound = true;
+              return res.status(200).json({
+                  success: true,
+                  Nombre: userData.Nombre,
+                  Papel: userData.Papel
+              });
+          }
+      });
 
-        if (!userFound) {
-            return res.status(401).json({ success: false, error: 'Incorrect password' });
-        }
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
+      if (!userFound) {
+          return res.status(401).json({ success: false, error: 'Incorrect password' });
+      }
+  } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 app.post('/api/signup', async (req, res) => {
@@ -373,37 +391,76 @@ app.put('/api/tareas/:id', async (req, res) => {
     const { email } = req.body;
   
     try {
-      const user = await User.findOne({ email });
-      if (!user) {
+      const usersRef = db.collection('LoginInfo');
+      const snapshot = await usersRef.where('Correo', '==', email).get();
+
+      if (snapshot.empty) {
         // Don't reveal that the email doesn't exist
-        return res.status(200).json({ message: 'If the email exists, a recovery link will be sent.' });
+        return res.status(200).json({ message: 'Si el correo existe, enviaremos un enlace.' });
       }
+
+      const userDoc = snapshot.docs[0];
+      const userId = userDoc.id;
+      
   
       const token = crypto.randomBytes(32).toString('hex');
       const expiresAt = new Date(Date.now() + 3600000); // 1 hour from now
   
-      user.resetPasswordToken = token;
-      user.resetPasswordExpires = expiresAt;
-      await user.save();
+      await usersRef.doc(userId).update({
+        resetPasswordToken: token,
+        resetPasswordExpires: expiresAt
+      });
   
-      const resetLink = `https://yourdomain.com/reset-password?token=${token}`;
+      const resetLink = `http://localhost:5173/reset-password?token=${token}`;
   
       // Send email with resetLink
-      const transporter = nodemailer.createTransport({
-        // Configure your email service here
+
+
+      const accessToken = await new Promise((resolve, reject) => {
+        oauth2Client.getAccessToken((err, token) => {
+          if (err) {
+            reject('Failed to create access token');
+          }
+          resolve(token);
+        });
       });
   
-      await transporter.sendMail({
-        from: 'noreply@yourdomain.com',
+      // Create transporter
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          type: 'OAuth2',
+          user: process.env.EMAIL_USER,
+          clientId: process.env.GMAIL_CLIENT_ID,
+          clientSecret: process.env.GMAIL_CLIENT_SECRET,
+          refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+          accessToken: accessToken
+        }
+      });
+  
+      // Send mail
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
         to: email,
         subject: 'Password Reset Request',
-        html: `Click <a href="${resetLink}">here</a> to reset your password. This link will expire in 1 hour.`
-      });
+        html: `
+        <h1>Password Reset Request</h1>
+        <p>You requested a password reset. Click the link below to reset your password:</p>
+        <a href="${resetLink}">Reset Password</a>
+        <p>This link will expire in 1 hour.</p>
+        <p>If you didn't request this, please ignore this email.</p>
+        `      
+      };
+  
+      const result = await transporter.sendMail(mailOptions);
+      console.log('Email sent successfully');
+      console.log(result);
   
       res.status(200).json({ message: 'If the email exists, a recovery link will be sent.' });
     } catch (error) {
       console.error('Password recovery error:', error);
-      res.status(500).json({ message: 'An error occurred during the password recovery process.' });
+      console.error('Stack trace:', error.stack);
+      res.status(500).json({ message: 'An error occurred during the password recovery process.', error: error.message });
     }
   });
   
@@ -412,19 +469,29 @@ app.put('/api/tareas/:id', async (req, res) => {
     const { token, password } = req.body;
   
     try {
-      const user = await User.findOne({
-        resetPasswordToken: token,
-        resetPasswordExpires: { $gt: Date.now() }
-      });
+      const usersRef = db.collection('LoginInfo');
+      const snapshot = await usersRef.where('resetPasswordToken', '==', token).get();
   
-      if (!user) {
+      if (snapshot.empty) {
         return res.status(400).json({ message: 'Password reset token is invalid or has expired.' });
       }
   
-      user.password = password; // Assume you're hashing the password before saving
-      user.resetPasswordToken = undefined;
-      user.resetPasswordExpires = undefined;
-      await user.save();
+      const userDoc = snapshot.docs[0];
+      const userId = userDoc.id;
+      const userData = userDoc.data();
+  
+      if (userData.resetPasswordExpires.toDate() < new Date()) {
+        return res.status(400).json({ message: 'Password reset token has expired.' });
+      }
+  
+      // Hash the new password
+  
+      // Update the user document with the new password hash and remove reset token fields
+      await usersRef.doc(userId).update({
+        Contraseña: password,
+        resetPasswordToken: admin.firestore.FieldValue.delete(),
+        resetPasswordExpires: admin.firestore.FieldValue.delete()
+      });
   
       res.status(200).json({ message: 'Your password has been successfully reset.' });
     } catch (error) {
