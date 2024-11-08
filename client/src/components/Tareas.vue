@@ -88,7 +88,7 @@
 <div>
 <h3>Tareas</h3>
 
-<AddTareas :participant="props.Dparticipant" @tarea-added="resetState" v-if="add"/>
+<AddTareas :participant="props.participant" @tarea-added="resetState" v-if="add"/>
 
 <button @click="addTareas">Agregar Tarea</button>
 

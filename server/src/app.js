@@ -161,7 +161,11 @@ app.get('/api/tareas-p', async (req, res) => {
 
 app.post('/api/addtarea', async (req, res) => {
     const { Nombre, Participante, Usario, Fecha } = req.body;
+    console.log(Fecha);
 
+    if (!Nombre || !Participante || !Usario || !Fecha) {
+      return res.status(400).json({ success: false, error: 'Le falta un elemento requerido' });
+  }
     try {
         const newTask = {
             Cumplido: false,
