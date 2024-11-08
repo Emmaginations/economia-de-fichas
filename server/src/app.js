@@ -138,6 +138,27 @@ app.get('/api/tareas', async (req, res) => {
     }
 });
 
+app.get('/api/tareas-p', async (req, res) => {
+  const { participante, fecha } = req.query; // Get parameters from query string
+  console.log(fecha);
+  try {
+      const snapshot = await db.collection('Tareas')
+          .where("Participante", "==", participante)
+          .where("Fecha", "==", fecha)
+          .get();
+
+      if (snapshot.empty) {
+          return res.status(404).json({ success: false, error: 'No tasks found' });
+      }
+
+      const tareas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      return res.status(200).json({ success: true, tareas });
+  } catch (error) {
+      console.error('Error fetching tasks:', error);
+      return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 app.post('/api/addtarea', async (req, res) => {
     const { Nombre, Participante, Usario, Fecha } = req.body;
 

@@ -57,7 +57,7 @@
 <button v-if="!add" @click="addParticipants">Add Participants</button>
  <div id="participant-block">
     <div class="task" v-for="participant in participants" :key="participant.id">
-      <p>{{ participant.Nombre }}</p>
+      <p>{{ participant.Nombre }}  {{ participant.Contacto }} {{ participant.Contraseña }}</p>
     </div>
 </div>
 </div>
