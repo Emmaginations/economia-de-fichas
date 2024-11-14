@@ -76,7 +76,8 @@
         <h3>Confirmación de Contraseña</h3>
         <input v-model="password2"  placeholder="Confirma tu contraseña" />
     </div>
-    <div class="inputs">
+    <div id="check" class="inputs">
+      
         <input type="checkbox" v-model="checked"/>
         <p>Aceptar los terminos y condiciones.</p>
     </div>
@@ -101,10 +102,25 @@
   
 }
 
+
 .inputs {
   margin: 0;
   padding: 0;
   width: 100%
+}
+
+#check {
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.inputs p {
+  margin-left: 10px;
+}
+
+#check input {
+  width: auto; margin-right: 10px;
 }
 
 input {
@@ -144,4 +160,5 @@ a {
   color: red;
   margin-top: 1em;
 }
+
 </style>

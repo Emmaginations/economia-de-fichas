@@ -42,7 +42,10 @@
 <template>
     <div class="container">
       <h2>¡Hola {{ currentUser.username }}! ¡Vamos a ganar estrellas!</h2>
-      <h3>Esta semana ya tienes {{ starsEarned }} estrellas.</h3>
+  
+      <h3>Esta semana ya tienes:</h3>
+      <div class="star"></div>
+      <p>{{ starsEarned }}</p>
       
       <Tareas_participant />
 
@@ -60,6 +63,35 @@ h2 {
   margin: 0 auto;
 }
 
+h3 {
+  display: flex;
+  justify-content: center;
+  margin: 5px;
+}
+
+Tareas_participant {
+  width: 100%;
+}
+
+.star {
+  display: inline-block;
+  position: relative;
+  width: 100px;
+  height: 100px;
+  background-color: #4C8AB9;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+}
 
 
 </style>

@@ -42,11 +42,11 @@ const clearPrizes = () => {
 
 
 const starLabels = [
-  "1-5 estrellas",
-  "6-10 estrellas",
-  "11-15 estrellas",
-  "16-20 estrellas",
-  "21-25 estrellas"
+  "1-5",
+  "6-10",
+  "11-15",
+  "16-20",
+  "21-25"
 ];
 
 const editingPrize = ref(null);
@@ -235,28 +235,6 @@ const orderedPrizes = computed(() => {
     }));
 });
 
-/*const fetchStarsEarned = async () => {
-  if (!props.participant || !selectedWeek.value) return;
-
-  try {
-    const response = await axios.get('http://localhost:5000/api/stars-earned', {
-      params: {
-        participant: props.participant,
-        week: selectedWeek.value
-      }
-    });
-
-    if (response.data.success) {
-      starsEarned.value = response.data.starsEarned;
-    } else {
-      console.error('Failed to fetch stars earned:', response.data.error);
-      statusMessage.value = 'Error al obtener las estrellas ganadas. Por favor, intente de nuevo.';
-    }
-  } catch (error) {
-    console.error('Error fetching stars earned:', error);
-    statusMessage.value = 'Error al obtener las estrellas ganadas. Por favor, intente de nuevo.';
-  }
-}; */
 
 
 
@@ -335,13 +313,13 @@ onMounted(() => {
       <table v-if="orderedPrizes.length > 0">
         <thead>
           <tr>
-            <th>Nivel</th>
+            <th class="fixed">Nivel</th>
             <th>Premio</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="{ level, label, prize } in orderedPrizes" :key="level">
-            <td>{{ label }}</td>
+            <td class="fixed"><div class="star"></div> {{ label }}</td>
             <td 
               @click="startEditing(level)" 
               @blur="stopEditing(level)"
@@ -376,8 +354,7 @@ onMounted(() => {
 
 <style scoped>
 .week-calendar {
-  width: 100%;
-  max-width: 800px;
+  width: 90%;
   margin: 2rem auto;
 }
 
@@ -386,6 +363,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
 }
 
 .week-select {
@@ -402,7 +380,7 @@ onMounted(() => {
 }
 
 .day-block {
-  background-color: #f3f4f6;
+  background-color: #DEF3D7;
   border-radius: 0.5rem;
   padding: 1rem;
   text-align: center;
@@ -414,8 +392,7 @@ onMounted(() => {
 }
 
 .day-block.selected {
-    background-color: lightgrey;
-    border-color:blue;
+    border-color:#4C8AB9;
 }
 
 .date {
@@ -432,5 +409,60 @@ onMounted(() => {
 
 .calendar-icon {
   margin-right: 0.25rem;
+}
+
+h3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  font-weight: bold;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid black;
+}
+
+th, td {
+  border: 1px solid black;
+  padding: 8px;
+}
+
+th {
+  background-color: #4C8AB9;
+  color: white;
+}
+
+input {
+  width: 100%;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.star {
+  display: inline-block;
+  position: relative;
+  width: 1em;
+  height: 1em;
+  background-color: #4C8AB9;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+}
+
+.fixed {
+  width: 30%;
 }
 </style>

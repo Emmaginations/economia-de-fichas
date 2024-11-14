@@ -82,11 +82,15 @@ watch([participant, selectedWeek], () => {
 <template>
     <div class="container">
       <h2>¡Hola {{ currentUser.username }}! Vamos a organizar esta semana juntos.</h2>
-      <button @click="toParticipants">Participantes</button>
-      <select v-model="participant">
+      <p>
+        Participante actual:
+        <select v-model="participant">
         <option disabled value="">Por favor selecciona un participante</option>
         <option class="participant" v-for="participant in participants" :key="participant.id">{{participant.Nombre }}</option>
-      </select>
+        </select>
+      </p>
+
+      <button @click="toParticipants">Participantes</button>
 
       <div v-if="participant && starsEarned > 0">
         <h3>Estrellas Ganadas Esta Semana</h3>
@@ -119,9 +123,34 @@ watch([participant, selectedWeek], () => {
 }
 
 h2 {
-  margin: 0 auto;
+  margin-bottom: 20px;
+  padding: 10px;
 }
 
+button {
+  width: 100px;
+  padding: 0.4em;
+  background-color: #61C73F;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin-top: 20px;
+  box-shadow: 2px 4px 2px lightgray;
+}
 
+select {
+  margin-left: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid #ccc;
+}
+
+Tareas {
+  width: 100%;
+}
+
+Calendar {
+  width: 100%;
+}
 
 </style>

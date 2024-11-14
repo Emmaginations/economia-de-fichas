@@ -1,13 +1,12 @@
 <script setup>
   import { ref } from "vue"; // Ensure `ref` is imported from Vue
   import { useRouter } from 'vue-router';
-  import { getFirestore, collection, query, where, getDocs } from "firebase/firestore"; // Correct imports from Firebase
+  import { getFirestore, collection } from "firebase/firestore"; // Correct imports from Firebase
   import { firebaseApp } from "@/main"; // Import your Firebase app
   import axios from 'axios';
 
 
   const db = getFirestore(firebaseApp); // Initialize Firestore with your app
-  const loginCollection = collection(db, "LoginInfo"); // Reference to the Firestore collection
 
   const router = useRouter();
 
@@ -100,7 +99,8 @@
 .inputs {
   margin: 0;
   padding: 0;
-  width: 100%
+  width: 100%;
+  text-align: left;
 }
 
 input {

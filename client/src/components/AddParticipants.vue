@@ -1,6 +1,6 @@
 <script setup>
   import { ref } from "vue";
-  import { getFirestore, collection, query, where, getDocs, addDoc } from "firebase/firestore"; // Correct imports from Firebase
+  import { getFirestore, collection } from "firebase/firestore"; // Correct imports from Firebase
   import { firebaseApp } from "@/main"; // Import your Firebase app
 
   import axios from 'axios';
@@ -59,9 +59,9 @@
 
 <template>
 
-<div id="signup-window">
+<div id="add-participants">
 
-<h2>Inscribirse</h2>
+<h2>Nueva Participante</h2>
 <div class="inputs">
     <h3>Nombre de Usario</h3>
     <input v-model="username" placeholder="Entra el nombre de usario del participante aquí" />
@@ -87,8 +87,71 @@
     <input v-model="password"  placeholder="Entra la contraseña del participante aquí" />
 </div>
 
-<button @click="signUpP">Inscribirse</button>
+<button @click="signUpP">Agregar</button>
 <p v-if="error" style="color: red">{{ error }}</p>
 </div>
 
 </template>
+
+<style>
+#add-participants {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 400px;
+  margin: 0 auto;
+  padding: 30px;
+  border-radius: 5px;
+  background-color: #DEF3D7;
+  box-shadow: 3px 5px 3px lightgray;
+  
+}
+
+.inputs {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  text-align: left;
+  width: 100%;
+}
+
+.check {
+  display: inline-block;
+}
+
+input {
+  width: 100%;
+  padding: 0.5em;
+  box-sizing: border-box;
+}
+
+button {
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin-top: 30px;
+  box-shadow: 2px 4px 2px lightgray;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 5px;
+  font-size: 1.2em;
+}
+
+h3 {
+  margin-top: 5px;
+  font-size: .9em;
+  width: 100%;
+}
+
+a {
+  font-size: .75em;
+
+}
+
+.error-message {
+  color: red;
+  margin-top: 1em;
+}
+</style>

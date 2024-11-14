@@ -6,20 +6,18 @@ const tareas = ref([]);
 
 const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
 
+
 function getCurrentDate() {
   const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return today.toISOString().split('T')[0]; // This will return "YYYY-MM-DD"
 }
 
 async function fetchTareas() {
   try {
-    const response = await axios.get('http://localhost:5000/api/tareas-p', {
+    const response = await axios.get('http://localhost:5000/api/tareasp', {
       params: {
         participante: currentUser.username,
-        fecha: getCurrentDate()
+        fecha: getCurrentDate(),
       }
     });
 
@@ -40,92 +38,69 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
-    <h3>Tareas para hoy</h3>
+  <div id="tareasp">
+    <h2>Tareas para hoy:</h2>
 
     <div id="task-block">
       <div class="task" v-for="tarea in tareas" :key="tarea.id">
         <div class="task-info">
           <p>{{ tarea.Nombre }}</p>
-          <p>{{ tarea.Cumplido }}</p>
         </div>
-      </div>
+    </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-.task {
-  display: flex;
-  justify-content: space-between;
+<style>
+
+#tareasp {
   align-items: center;
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
 }
 
-.task-info {
-  flex-grow: 1;
+#task-block {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
 }
 
-.task-status {
-  margin-left: 10px;
+#task-block h3 {
+  display: flex;
+  justify-content: center;
+  font-size: 1.1em;
+  margin-bottom: 5px;
 }
 
-.checkbox-container {
-  display: block;
-  position: relative;
-  padding-left: 35px;
-  margin-bottom: 12px;
-  cursor: pointer;
-  font-size: 22px;
-  user-select: none;
+.task {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 50px;
+    align-items: center;
+    background-color: rgb(241, 241, 241);
+    padding: 10px;
 }
 
-.checkbox-container input {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-  height: 0;
-  width: 0;
+.task p {
+  display: flex;  
+  justify-content: center;
 }
 
-.checkmark {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 25px;
-  width: 25px;
-  background-color: #eee;
-  border-radius: 4px;
+h3 {
+    margin-top: 40px;
+    display: flex;
 }
 
-.checkbox-container:hover input ~ .checkmark {
-  background-color: #ccc;
+.heading {
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
 }
 
-.checkbox-container input:checked ~ .checkmark {
-  background-color: #2196F3;
-}
-
-.checkmark:after {
-  content: "";
-  position: absolute;
-  display: none;
-}
-
-.checkbox-container input:checked ~ .checkmark:after {
-  display: block;
-}
-
-.checkbox-container .checkmark:after {
-  left: 9px;
-  top: 5px;
-  width: 5px;
-  height: 10px;
-  border: solid white;
-  border-width: 0 3px 3px 0;
-  transform: rotate(45deg);
-}
 </style>

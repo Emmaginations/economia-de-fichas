@@ -54,12 +54,52 @@
 
 <AddParticipants @participant-added="resetState" v-if="add"/>
 <button @click="toHome">Página Principal</button>
-<button v-if="!add" @click="addParticipants">Add Participants</button>
+<button v-if="!add" @click="addParticipants">Agregar Participantes</button>
  <div id="participant-block">
-    <div class="task" v-for="participant in participants" :key="participant.id">
-      <p>{{ participant.Nombre }}  {{ participant.Contacto }} {{ participant.Contraseña }}</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Manera de Contacto</th>
+          <th>Contraseña</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="participant in participants" :key="participant.id">
+          <td>{{ participant.Nombre }}</td>
+          <td>{{ participant.Contacto }}</td>
+          <td>{{ participant.Contraseña }}</td>
+        </tr>
+      </tbody>
+    </table> 
     </div>
-</div>
 </div>
 
 </template>
+
+<style scoped>
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-top: 10px;
+}
+
+th, td {
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  padding: 8px;
+  text-align: left;
+  background-color: #f2f2f2;
+}
+
+th {
+  background-color: #4C8AB9;
+  color: white;
+}
+
+button {
+  margin-right: 10px;
+}
+
+</style>

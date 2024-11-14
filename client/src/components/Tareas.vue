@@ -85,12 +85,12 @@
 </script>
 
 <template>
-<div>
-<h3>Tareas</h3>
+<div id="tareas">
+<h3 class="heading">Tareas</h3>
 
 <AddTareas :participant="props.participant" @tarea-added="resetState" v-if="add"/>
 
-<button @click="addTareas">Agregar Tarea</button>
+<button v-if="!add" @click="addTareas">Agregar Tarea</button>
 
 <div id="task-block">
     <h3>{{  selectedDate }}</h3>
@@ -118,6 +118,13 @@
 
 <style>
 
+#tareas {
+  align-items: center;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+}
+
 #task-block {
     display: flex;
     flex-direction: column;
@@ -125,24 +132,40 @@
     align-items: center;
 }
 
+#task-block h3 {
+  display: flex;
+  justify-content: center;
+  font-size: 1.1em;
+  margin-bottom: 5px;
+}
+
 .task {
     border-top: 1px solid black;
     border-bottom: 1px solid black;
-    width: 90%;
+    width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     height: 50px;
     align-items: center;
+    background-color: rgb(241, 241, 241);
+    padding: 10px;
 }
 
 .task p {
-    justify-content: center;
+  display: flex;  
+  justify-content: center;
 }
 
 h3 {
     margin-top: 40px;
+    display: flex;
 }
 
+.heading {
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+}
 
 </style>

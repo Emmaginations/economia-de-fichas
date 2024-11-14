@@ -60,7 +60,7 @@
 <template>
 <div id="add-tasks">
 
-<h2>Agregar Tarea</h2>
+<h2>Nueva Tarea</h2>
     <div class="inputs">
         <h3>Objetivo</h3>
         <input v-model="objective" placeholder="Entra el objetivo de la tarea" />
@@ -89,12 +89,70 @@
       </DatePicker>
     </div>
 
-    <div class="inputs">
-        <input type="checkbox" v-model="checked"/>
-        <h3>Asignar a mas participantes</h3>
-    </div>
-
     <button @click="addTask">Agregar</button>
     <p v-if="error" style="color: red">{{ error }}</p>
 </div>
 </template>
+
+<style>
+#add-tasks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 400px;
+  margin: 0 auto;
+  padding: 30px;
+  border-radius: 5px;
+  background-color: #DEF3D7;
+  box-shadow: 3px 5px 3px lightgray;
+  
+}
+
+.inputs {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  text-align: left;
+  width: 100%;
+}
+
+.check {
+  display: inline-block;
+}
+
+input {
+  width: 100%;
+  padding: 0.5em;
+  box-sizing: border-box;
+}
+
+button {
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin-top: 30px;
+  box-shadow: 2px 4px 2px lightgray;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 5px;
+  font-size: 1.2em;
+}
+
+h3 {
+  margin-top: 5px;
+  font-size: .9em;
+  width: 100%;
+}
+
+a {
+  font-size: .75em;
+
+}
+
+.error-message {
+  color: red;
+  margin-top: 1em;
+}
+</style>

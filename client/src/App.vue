@@ -6,6 +6,7 @@
 <template>
   <main>
   <header>
+    <img src="./components/icons/logo.png" alt="Logo de Economía de Fichas" height="30px">
     <h1>Economía de Fichas</h1>
   </header>
 
@@ -35,6 +36,10 @@ header h1 {
   padding: 10px;
   font-size: 1em;
   justify-content: center;
+}
+
+img {
+  padding-left: 20px;
 }
 
 </style>

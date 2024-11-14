@@ -138,13 +138,15 @@ app.get('/api/tareas', async (req, res) => {
     }
 });
 
-app.get('/api/tareas-p', async (req, res) => {
+app.get('/api/tareasp', async (req, res) => {
   const { participante, fecha } = req.query; // Get parameters from query string
   console.log(fecha);
+  console.log(participante);
   try {
       const snapshot = await db.collection('Tareas')
           .where("Participante", "==", participante)
           .where("Fecha", "==", fecha)
+          .where("Cumplido", "==", false)
           .get();
 
       if (snapshot.empty) {
